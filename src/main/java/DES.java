@@ -31,6 +31,8 @@ Compress the given 64-bit key into 48-bit keys using a 56-bit table
 public class DES {
 	private final int keyLength; // bits
 	private final int rounds;
+	private int cipherTextLength;
+	private int decryptedTextLength;
 	private byte[] inputBytes;
 	private byte[] keyArray;
 	private byte[] ivArray;
@@ -78,20 +80,21 @@ public class DES {
 		cipher = Cipher.getInstance("DES/ECB/PKCS7Padding");
 	}
 
-	// step 7. + 8.
 	public void encrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException {
-		byte[]
 		// step 7.
 		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
 		// step 8.
 		encryptedBytes = new byte[cipher.getOutputSize(inputBytes.length)];
-		int cipherLength = cipher.update(inputBytes, 0, inputBytes.length, encryptedBytes, 0);
-		cipherLength = cipher.doFinal(encryptedBytes, cipherLength);
+		cipherTextLength = cipher.update(inputBytes, 0, inputBytes.length, encryptedBytes, 0);
+		cipherTextLength += cipher.doFinal(encryptedBytes, cipherTextLength);
 	}
 
-	// step 9. + 10.
-	public void decrypt(){
-
+	public void decrypt() throws InvalidAlgorithmParameterException, InvalidKeyException {
+		// step 9.
+		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+		// step 10.
+		decryptedTextLength = cipher.update(encryptedBytes, 0, cipherTextLength, decryptedBytes, 0);
+		decryptedTextLength += cipher.doFinal(decryptedBytes, decryptedTextLength);
 	}
 
 }
