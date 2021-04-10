@@ -20,18 +20,21 @@ public class DES {
 	private final int keyLength; // bits
 	private final int rounds;
 	private SecretKey generatedKey;
+	Cipher cipher;
 
-	public DES(){
+	public DES(String plainText){
 		this.keyLength = 64; // bits
 		this.rounds = 16;
 	}
 
-	public void generateKey() throws NoSuchAlgorithmException {
+	public void generateKey() throws NoSuchAlgorithmException, NoSuchPaddingException {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
 		keyGenerator.init(keyLength);
 		this.generatedKey = keyGenerator.generateKey();
+		cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
 	}
 
 	public void encrypt(){
+
 	}
 }
