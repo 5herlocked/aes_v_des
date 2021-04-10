@@ -58,7 +58,7 @@ public class Rijndael {
 
 	private byte[] generateRoundKeys() {
 		// ROTWORD is just ROTL8(x, 1)
-
+		return new byte[10]; // TODO: Delete this line
 	}
 
 	public byte[] encrypt(String plainText) throws

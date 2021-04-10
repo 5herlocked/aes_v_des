@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 public class Final {
 	public static void main (String[] args) {
 		// convert plaintext.txt to String
-		String plainText = convertFileToString("plaintext"); // input .txt file name
+		String plainText = convertFileToString(); //
 		System.out.println(plainText);
 
 		// testing AES()
@@ -18,20 +18,14 @@ public class Final {
 	}
 
 	// read a file as String
-	public static String convertFileToString(String fileName) throws FileNotFoundException {
+	public static String convertFileToString(){
+		String plaintext ="";
 		try {
-			//URL path = Final.class.getResource(fileName + ".txt");
-			URL path = Final.class.getResource("plaintext.txt"); // TODO: Try the one above too
-			//File file = new File(path.getFile());
-			//BufferedReader reader = new BufferedReader(new FileReader(file));
-			String res = Files.readString(Paths.get(String.valueOf(path)));
-			return res;
-		} catch (FileNotFoundException e){
-			System.out.println("FileNotFoundException in convertFileToString()");
-		} catch (IOException e) {
+			plaintext = new String(Files.readAllBytes(Paths.get("plaintext.txt")));
+		} catch (IOException e){
 			e.printStackTrace();
 		}
-		return "";
+		return plaintext;
 	}
 
 	public static void testAES(){
