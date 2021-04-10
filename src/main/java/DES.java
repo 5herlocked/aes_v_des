@@ -89,7 +89,7 @@ public class DES {
 		cipherTextLength += cipher.doFinal(encryptedBytes, cipherTextLength);
 	}
 
-	public void decrypt() throws InvalidAlgorithmParameterException, InvalidKeyException {
+	public void decrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException {
 		// step 9.
 		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 		// step 10.
