@@ -11,7 +11,7 @@ Takes a 64-bit plaintext
 using a 64-bit cipher key + 64-bit IV
 Outputs a 64-bit plaintext
 
-1. Split up plaintext input into bytes -- partitionBytes()
+1. Split up plaintext input into bytes array inputBytes[] -- partitionBytes()
 2. Create a byte array keyArray to be used as a key -- genKeyArray()
 3. Create a byte array ivArray to be used as an initialization vector (IV) -- genIvArray()
 4. Create a new SecretKeySpec secretKeySpec w/ key array -- genSecretKeySpec();
@@ -31,8 +31,11 @@ Compress the given 64-bit key into 48-bit keys using a 56-bit table
 public class DES {
 	private final int keyLength; // bits
 	private final int rounds;
+	private byte[] inputBytes;
 	private byte[] keyArray;
 	private byte[] ivArray;
+	private byte[] encryptedBytes;
+	private byte[] decryptedBytes;
 	private SecretKeySpec secretKeySpec;
 	private IvParameterSpec ivParameterSpec;
 	Cipher cipher;
@@ -45,7 +48,7 @@ public class DES {
 
 	// step 1.
 	public void partitionBytes(String plainText){
-		byte[] bytes = plainText.getBytes();
+		byte[] inputBytes = plainText.getBytes();
 	}
 
 	// step 2.
@@ -62,12 +65,12 @@ public class DES {
 
 	// step 4.
 	public void genSecretKeySpec(){
-		keyArray = new SecretKeySpec(keyArray, "DES");
+		secretKeySpec = new SecretKeySpec(keyArray, "DES");
 	}
 
 	// step 5.
 	public void genIvParameterSpec(){
-
+		ivParameterSpec = new IvParameterSpec(ivArray);
 	}
 
 	// step 6.
@@ -76,8 +79,14 @@ public class DES {
 	}
 
 	// step 7. + 8.
-	public void encrypt(){
-
+	public void encrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException {
+		byte[]
+		// step 7.
+		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+		// step 8.
+		encryptedBytes = new byte[cipher.getOutputSize(inputBytes.length)];
+		int cipherLength = cipher.update(inputBytes, 0, inputBytes.length, encryptedBytes, 0);
+		cipherLength = cipher.doFinal(encryptedBytes, cipherLength);
 	}
 
 	// step 9. + 10.
