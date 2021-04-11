@@ -3,6 +3,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,11 +31,17 @@ public class Final {
 	}
 
 	private static String convertFileToString (String path) throws IOException {
-		
+
 	}
 
 	private static void testAES(String plainText) {
+		byte[] stringBuffer = plainText.getBytes(StandardCharsets.UTF_8);
 
+		long startTime = System.nanoTime();
+
+		// Initialises AES 128
+		Rijndael aesCBC = new Rijndael(128);
+		aesCBC.encrypt(stringBuffer);
 	}
 
 
