@@ -21,6 +21,7 @@ public class Final {
 			e.printStackTrace();
 		}
 
+		//TODO: Have AES generate an encryptedText file and decryptedText file to match DES
 		// testAES(); // testing AES()
 
 		testDES(plainText); // testingDES()
@@ -52,6 +53,11 @@ public class Final {
 		desCBC.genIvParameterSpec();
 		desCBC.createCipher();
 		desCBC.encrypt();
+		try {
+			desCBC.writeEncryptOutput();
+		} catch (IOException e){
+			System.out.println("Could not write encrypted output to new file decrypted.dat");
+		}
 		desCBC.decrypt();
 		try {
 			desCBC.writeDecryptOutput();

@@ -83,12 +83,11 @@ public class DES {
 		cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
 	}
 
-	public void encrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException {
+	public void encrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException{
 		// step 7.
 		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
 		// step 8.
 		encryptedBytes = cipher.doFinal(inputBytes);
-		// TODO: Maybe write encrypted output to a file?
 	}
 
 	public void decrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException{
@@ -100,10 +99,16 @@ public class DES {
 		decryptedBytes = cipher.doFinal(encryptedBytes);
 	}
 
-	// TODO: Maybe write decrypted output to a file?
 	public void writeDecryptOutput() throws IOException {
 		FileOutputStream out = new FileOutputStream("decrypted.dat");
 		out.write(decryptedBytes);
+		out.close();
+	}
+
+	// TODO: Maybe merge this method with writeDecryptOuput()
+	public void writeEncryptOutput() throws IOException {
+		FileOutputStream out = new FileOutputStream("encrypted.dat");
+		out.write(encryptedBytes);
 		out.close();
 	}
 
