@@ -52,7 +52,8 @@ public class DES {
 
 	// step 1.
 	public void partitionBytes(){
-		byte[] inputBytes = plainText.getBytes();
+		inputBytes = plainText.getBytes();
+		System.out.println("partitionBytes() succeeded");
 	}
 
 	// step 2.
@@ -79,7 +80,7 @@ public class DES {
 
 	// step 6.
 	public void createCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-		cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+		cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
 	}
 
 	public void encrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException {
