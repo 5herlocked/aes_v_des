@@ -21,11 +21,9 @@ public class Final {
 			e.printStackTrace();
 		}
 
-		// testing AES()
-		// testAES();
+		// testAES(); // testing AES()
 
-		// testingDES()
-		testDES(plainText);
+		testDES(plainText); // testingDES()
 
 	}
 
@@ -45,7 +43,6 @@ public class Final {
 	}
 
 	public static void testDES(String plainText) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, ShortBufferException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
-		// TODO
 		long startTime = System.nanoTime();
 		DES desCBC = new DES(plainText);
 		desCBC.partitionBytes();
