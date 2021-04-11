@@ -24,6 +24,7 @@ public class Final {
 		//TODO: Have AES generate an encryptedText file and decryptedText file to match DES
 		// testAES(); // testing AES()
 
+		//TODO: Don't read DES from a file, store the file into the code itself to not rely on OS times
 		testDES(plainText); // testingDES()
 
 	}
