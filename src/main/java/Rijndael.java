@@ -235,12 +235,18 @@ public class Rijndael {
 		state[1][3] = temp;
 	}
 
+<<<<<<< HEAD
 
 	// PUBLIC METHODS for AES CBC
 	public void XorWithIV(byte[] buffer, byte[] Iv) {
 		for (int i = 0; i < 128; i++) {
 			buffer[i] ^= Iv[i];
 		}
+=======
+	private byte[] generateRoundKeys() {
+		// ROTWORD is just ROTL8(x, 1)
+		return new byte[10]; // TODO: Delete this line
+>>>>>>> jenny
 	}
 
 	public void encrypt(byte[] buffer) {
