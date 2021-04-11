@@ -16,7 +16,7 @@ Outputs a 64-bit plaintext
 3. Create a byte array ivArray to be used as an initialization vector (IV) -- genIvArray()
 4. Create a new SecretKeySpec secretKeySpec w/ key array -- genSecretKeySpec();
 5. Create a new IvParameterSpec ivParameterSpec using IV array -- genIvParameterSpec();
-6. Create a new Cipher for DES+CBC with PKCS7 padding -- createCipher()
+6. Create a new Cipher for DES+CBC with PKCS5 padding -- createCipher()
 7. Init Cipher to encryption mode using key array + iv array
 8. Encrypt w/ help of Cipher API -- encrypt()
 9. Init Cipher to decryption mode
@@ -29,6 +29,7 @@ Compress the given 64-bit key into 48-bit keys using a 56-bit table
  */
 
 public class DES {
+	private String plainText;
 	private final int keyLength; // bits
 	private final int rounds;
 	private int cipherTextLength;
@@ -43,13 +44,14 @@ public class DES {
 	Cipher cipher;
 
 	// constructor that sets the key length + # of rounds
-	public DES(){
+	public DES(String plainText){
 		this.keyLength = 64; // bits
 		this.rounds = 16;
+		this.plainText = plainText;
 	}
 
 	// step 1.
-	public void partitionBytes(String plainText){
+	public void partitionBytes(){
 		byte[] inputBytes = plainText.getBytes();
 	}
 
@@ -77,7 +79,7 @@ public class DES {
 
 	// step 6.
 	public void createCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-		cipher = Cipher.getInstance("DES/ECB/PKCS7Padding");
+		cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
 	}
 
 	public void encrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException {
