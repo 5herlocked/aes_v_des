@@ -3,8 +3,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,8 +32,7 @@ public class Final {
 	// read a file as String
 	public static String convertFileToString() throws IOException{
 		Path path = Paths.get("src/main/java/plaintext.txt");
-		String res = Files.readString(path);
-		return res;
+		return Files.readString(path);
 	}
 
 	public static void testAES(){
@@ -49,8 +46,6 @@ public class Final {
 
 	public static void testDES(String plainText) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, ShortBufferException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
 		// TODO
-		int keyLength = 16; // bytes
-		int rounds = 10; // 10 rounds + 16 bytes = AES128
 		long startTime = System.nanoTime();
 		DES desCBC = new DES(plainText);
 		desCBC.partitionBytes();
@@ -61,6 +56,11 @@ public class Final {
 		desCBC.createCipher();
 		desCBC.encrypt();
 		desCBC.decrypt();
+		try {
+			desCBC.writeDecryptOutput();
+		} catch (IOException e){
+			System.out.println("Could not write decrypted output to new file decrypted.dat");
+		}
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime) / 1000000; //divide by 1000000 for ms
 		System.out.println("DES encryption and decryption time taken: " + duration + " (ms)");

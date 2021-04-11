@@ -53,7 +53,6 @@ public class DES {
 	// step 1.
 	public void partitionBytes(){
 		inputBytes = plainText.getBytes();
-		System.out.println("partitionBytes() succeeded");
 	}
 
 	// step 2.
@@ -87,17 +86,24 @@ public class DES {
 		// step 7.
 		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
 		// step 8.
-		encryptedBytes = new byte[cipher.getOutputSize(inputBytes.length)];
-		cipherTextLength = cipher.update(inputBytes, 0, inputBytes.length, encryptedBytes, 0);
-		cipherTextLength += cipher.doFinal(encryptedBytes, cipherTextLength);
+		encryptedBytes = cipher.doFinal(inputBytes);
+		// TODO: Maybe write encrypted output to a file?
 	}
 
-	public void decrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException {
+	public void decrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException{
 		// step 9.
 		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 		// step 10.
-		decryptedTextLength = cipher.update(encryptedBytes, 0, cipherTextLength, decryptedBytes, 0);
-		decryptedTextLength += cipher.doFinal(decryptedBytes, decryptedTextLength);
+		//decryptedTextLength = cipher.update(encryptedBytes, 0, cipherTextLength, decryptedBytes, 0);
+		//decryptedTextLength += cipher.doFinal(decryptedBytes, decryptedTextLength);
+		decryptedBytes = cipher.doFinal(encryptedBytes);
+	}
+
+	// TODO: Maybe write decrypted output to a file?
+	public void writeDecryptOutput() throws IOException {
+		FileOutputStream out = new FileOutputStream("decrypted.dat");
+		out.write(decryptedBytes);
+		out.close();
 	}
 
 }
