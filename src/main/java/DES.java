@@ -1,7 +1,6 @@
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.io.*;
-import java.nio.charset.*;
 import java.security.*;
 import java.util.Random;
 

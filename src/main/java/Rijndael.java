@@ -1,7 +1,4 @@
 import javax.crypto.*;
-import javax.crypto.spec.*;
-import java.io.*;
-import java.nio.charset.*;
 import java.security.*;
 
 /*
@@ -88,6 +85,8 @@ public class Rijndael {
 
 	private SecretKey generatedKey;
 
+	private byte[][] roundKeys;
+
 	// Constructor
 
 	// Receives the length of the key and deduces the version of AES being used
@@ -111,7 +110,7 @@ public class Rijndael {
 	}
 
 	// Private Methods
-	private void generateIV() throws Exception {
+	private void generateIV () throws Exception {
 		byte[] IV = new byte[16];
 		SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
 		prng.nextBytes(IV);
@@ -121,7 +120,7 @@ public class Rijndael {
 
 
 	// This shifts the 4 bytes in a word to the left once.
-	private void rotWord(byte[] word) {
+	private void rotWord (byte[] word) {
 		byte temp = word[0];
 		word[0] = word[1];
 		word[2] = word[3];
@@ -129,7 +128,7 @@ public class Rijndael {
 	}
 
 	// SubWord takes a four byte input word and applies S-box to each byte
-	private void subWord(byte[] word) {
+	private void subWord (byte[] word) {
 		word[0] = (byte) sBox[word[0]];
 		word[1] = (byte) sBox[word[1]];
 		word[2] = (byte) sBox[word[2]];
@@ -145,10 +144,10 @@ public class Rijndael {
 
 		// First round of key expansions
 		for (int i = 0; i < rounds; i++) {
-			roundKey[(i*4) + 0] = generatedKey.getEncoded()[(i * 4) + 0];
-			roundKey[(i*4) + 1] = generatedKey.getEncoded()[(i * 4) + 1];
-			roundKey[(i*4) + 2] = generatedKey.getEncoded()[(i * 4) + 2];
-			roundKey[(i*4) + 3] = generatedKey.getEncoded()[(i * 4) + 3];
+			roundKey[(i * 4) + 0] = generatedKey.getEncoded()[(i * 4) + 0];
+			roundKey[(i * 4) + 1] = generatedKey.getEncoded()[(i * 4) + 1];
+			roundKey[(i * 4) + 2] = generatedKey.getEncoded()[(i * 4) + 2];
+			roundKey[(i * 4) + 3] = generatedKey.getEncoded()[(i * 4) + 3];
 		}
 
 		// All other round keys are found from the previous round keys.
@@ -166,7 +165,7 @@ public class Rijndael {
 				// and then substitute it
 				subWord(temp);
 
-				temp[0] = (byte) (temp[0] ^ rCon[i/numCol]);
+				temp[0] = (byte) (temp[0] ^ rCon[i / numCol]);
 			}
 
 			if (this.keyLength == 256) {
@@ -189,7 +188,7 @@ public class Rijndael {
 	/*
 		Adds the round key to the current intermediate state
 	 */
-	private void addRoundKey(byte round, byte[] roundKey) {
+	private void addRoundKey (byte round, byte[] roundKey) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				state[i][j] ^= roundKey[(round * numCol * 4) + (i * numCol) + j];
@@ -200,7 +199,7 @@ public class Rijndael {
 	/*
 		Substitutes the bytes based on the current state
 	 */
-	private void subBytes() {
+	private void subBytes () {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				state[j][i] = (byte) sBox[state[j][i]];
@@ -208,7 +207,7 @@ public class Rijndael {
 		}
 	}
 
-	private void shiftRows() {
+	private void shiftRows () {
 		byte temp;
 
 		// Rotate first row 1 columns left
@@ -235,30 +234,62 @@ public class Rijndael {
 		state[1][3] = temp;
 	}
 
+	private void cipher (byte[] buffer, int counter) {
+
+
+	}
+
+	private void invCipher (byte[] buffer, int counter) {
+
+	}
+
+
 	// PUBLIC METHODS for AES CBC
-	public void XorWithIV(byte[] buffer, byte[] Iv) {
+	public void xorWithIV (byte[] buffer, byte[] Iv) {
 		for (int i = 0; i < 128; i++) {
 			buffer[i] ^= Iv[i];
 		}
 	}
 
-	public void encrypt(byte[] buffer) {
+	public void encrypt (byte[] buffer) {
 
-		byte[] Iv = this.Iv;
+		if (this.initialiseVector == null) {
+			try {
+				generateIV();
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		}
+		byte[] Iv = this.initialiseVector;
 
-		for (int i = 0; i < keyLength; i += 128) {
-			XorWithIV(buffer, Iv);
+		for (int i = 0; i < buffer.length; i += 128) {
+			xorWithIV(buffer, Iv);
+
+			// Does the actual encryption
+			cipher(buffer, i);  // Passes in the buffer and how much of it is already encrypted
 
 			Iv = buffer;
-
-			// buf += AES_BLOCKLEN
 		}
 
 	}
 
-	public void decrypt(byte[] buffer) {
+	public void decrypt (byte[] buffer) {
+
+		if (this.initialiseVector == null) {
+			System.out.println("Trying to decrypt without initialising");
+			return;
+		}
+
+		for (int i = 0; i < buffer.length; i += 128) {
+
+			invCipher(buffer, i);   // Passes in the buffer and how much of it is already decrypted
+
+			xorWithIV(buffer, this.initialiseVector);
+		}
 
 	}
+}
 
 
 //	public byte[] encrypt(String plainText) throws
@@ -330,4 +361,4 @@ public class Rijndael {
 //
 //		return new String(decrypted);
 //	}
-}
+
