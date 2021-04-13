@@ -91,8 +91,10 @@ public class Rijndael {
 
 	// Receives the length of the key and deduces the version of AES being used
 	// Defaults to AES 128/ 10 rounds
-	public Rijndael (int keyLength) {
+	public Rijndael (int keyLength) throws Exception {
 		this.keyLength = keyLength;
+
+		this.initialiseVector = generateIV();
 
 		if (keyLength == 128) {
 			this.rounds = 10;
@@ -110,12 +112,12 @@ public class Rijndael {
 	}
 
 	// Private Methods
-	private void generateIV () throws Exception {
+	private byte[] generateIV () throws Exception {
 		byte[] IV = new byte[16];
 		SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
 		prng.nextBytes(IV);
 
-		this.initialiseVector = IV;
+		return IV;
 	}
 
 
