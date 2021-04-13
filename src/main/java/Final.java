@@ -15,24 +15,27 @@ import java.util.Arrays;
 public class Final {
 	public static void main (String[] args) throws InvalidAlgorithmParameterException, NoSuchPaddingException, ShortBufferException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		// convert plaintext.txt to String
-		String plainText = "";
-		try {
-			plainText = convertFileToString(); //
-		} catch (IOException e){
-			System.out.println("There was an issue finding the plaintext file");
-			e.printStackTrace();
-		}
+//		String plainText = "";
+//		try {
+//			plainText = convertFileToString(); //
+//		} catch (IOException e){
+//			System.out.println("There was an issue finding the plaintext file");
+//			e.printStackTrace();
+//		}
 
 		//TODO: Have AES generate an encryptedText file and decryptedText file to match DES
-		// testAES(); // testing AES()
+		testAES("6bc1bee22e409f96e93d7e117393172a" +
+			"ae2d8a571e03ac9c9eb76fac45af8e51" +
+			"30c81c46a35ce411e5fbc1191a0a52ef" +
+			"f69f2445df4f9b17ad2b417be66c3710"); // testing AES()
 
 		//TODO: Don't read DES from a file, store the file into the code itself to not rely on OS times
-		testDES(plainText); // testingDES()
+		//testDES(plainText); // testingDES()
 
 	}
 
 	private static String convertFileToString (String path) throws IOException {
-
+		return "";
 	}
 
 	private static void testAES(String plainText) {

@@ -22,6 +22,10 @@ Outputs a 128-bit block ciphertext
 	iii. AddRoundKey
 */
 
+// SOME OF THIS CODE IS ADAPTED INTO JAVA FROM kokke's tiny-AES-C
+// Credit for most of the complex matrix math goes to kokke and his amazing tiny-aes repository
+// linked here for reference: https://github.com/kokke/tiny-AES-C
+
 public class Rijndael {
 
 	// Static Variables
@@ -74,17 +78,21 @@ public class Rijndael {
 	private byte[][] state = new byte[4][4];
 
 	// instance storage for the IV
-	private byte[] initialiseVector;
+	private final byte[] initialiseVector;
 
 	// number of columns defining a state in AES. It is constant
 	private static final int numCol = 4;
 
+	// specified key length for the generated key
 	private int keyLength;
 
+	// Number of rounds in the AES instance
 	private final int rounds;
 
-	private SecretKey generatedKey;
+	// Generated initial key
+	private final SecretKey generatedKey;
 
+	// Two dimensional matrix to store all the round key expansions
 	private byte[][] roundKeys;
 
 	// Constructor
@@ -95,6 +103,11 @@ public class Rijndael {
 		this.keyLength = keyLength;
 
 		this.initialiseVector = generateIV();
+
+		KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+		keyGen.init(this.keyLength);
+		this.generatedKey = keyGen.generateKey();
+		keyExpansion();
 
 		if (keyLength == 128) {
 			this.rounds = 10;
@@ -120,6 +133,56 @@ public class Rijndael {
 		return IV;
 	}
 
+	// This function produces Round + 1 number of round keys
+	private void keyExpansion () {
+
+		byte[] temp = new byte[4];
+
+		int b, c; // temp variables
+
+		// First round of key is the generated key itself
+		for (int i = 0; i < rounds; i++) {
+			roundKeys[i][0] = generatedKey.getEncoded()[(i * 4) + 0];
+			roundKeys[i][1] = generatedKey.getEncoded()[(i * 4) + 1];
+			roundKeys[i][2] = generatedKey.getEncoded()[(i * 4) + 2];
+			roundKeys[i][3] = generatedKey.getEncoded()[(i * 4) + 3];
+		}
+
+		// All other round keys are found from the previous round keys.
+		for (int i = rounds; i < numCol * (rounds + 1); i++) {
+			c = i - 1;
+
+			temp[0] = roundKeys[c][0];
+			temp[0] = roundKeys[c][1];
+			temp[0] = roundKeys[c][2];
+			temp[0] = roundKeys[c][3];
+
+			if (i % numCol == 0) {
+				// Rotate word
+				rotWord(temp);
+				// and then substitute it
+				subWord(temp);
+
+				temp[0] = (byte) (temp[0] ^ rCon[i / numCol]);
+			}
+
+			if (this.keyLength == 256) {
+				if (i % numCol == 4) {
+					subWord(temp);
+				}
+			}
+
+			b = i;
+			c = (i - numCol);
+
+			roundKeys[b][0] = (byte) (roundKeys[c][0] ^ temp[0]);
+			roundKeys[b][1] = (byte) (roundKeys[c][1] ^ temp[1]);
+			roundKeys[b][2] = (byte) (roundKeys[c][2] ^ temp[2]);
+			roundKeys[b][3] = (byte) (roundKeys[c][3] ^ temp[3]);
+		}
+
+	}
+
 
 	// This shifts the 4 bytes in a word to the left once.
 	private void rotWord (byte[] word) {
@@ -137,63 +200,22 @@ public class Rijndael {
 		word[3] = (byte) sBox[word[3]];
 	}
 
-	// This function produces Round + 1 number of round keys
-	private void keyExpansion (byte[] roundKey) {
-
-		byte[] temp = new byte[4];
-
-		int a, b, c; // temp variables
-
-		// First round of key expansions
-		for (int i = 0; i < rounds; i++) {
-			roundKey[(i * 4) + 0] = generatedKey.getEncoded()[(i * 4) + 0];
-			roundKey[(i * 4) + 1] = generatedKey.getEncoded()[(i * 4) + 1];
-			roundKey[(i * 4) + 2] = generatedKey.getEncoded()[(i * 4) + 2];
-			roundKey[(i * 4) + 3] = generatedKey.getEncoded()[(i * 4) + 3];
-		}
-
-		// All other round keys are found from the previous round keys.
-		for (int i = rounds; i < numCol * (rounds + 1); i++) {
-			c = ((i - 1) * 4);
-
-			temp[0] = roundKey[c + 0];
-			temp[0] = roundKey[c + 1];
-			temp[0] = roundKey[c + 2];
-			temp[0] = roundKey[c + 3];
-
-			if (i % numCol == 0) {
-				// Rotate word
-				rotWord(temp);
-				// and then substitute it
-				subWord(temp);
-
-				temp[0] = (byte) (temp[0] ^ rCon[i / numCol]);
-			}
-
-			if (this.keyLength == 256) {
-				if (i % numCol == 4) {
-					subWord(temp);
-				}
-			}
-
-			b = i * 4;
-			c = (i - numCol) * 4;
-
-			roundKey[b + 0] = (byte) (roundKey[c + 0] ^ temp[0]);
-			roundKey[b + 1] = (byte) (roundKey[c + 1] ^ temp[1]);
-			roundKey[b + 2] = (byte) (roundKey[c + 2] ^ temp[2]);
-			roundKey[b + 3] = (byte) (roundKey[c + 3] ^ temp[3]);
-		}
-
+	// Multiplies x and y into the galois field
+	private byte multiply(byte x, byte y) {
+		return (byte) (((y & 1) * x) ^
+					  ((y>>1 & 1) * xtime(x)) ^
+					  ((y>>2 & 1) * xtime(xtime(x))) ^
+					  ((y>>3 & 1) * xtime(xtime(xtime(x)))) ^
+					  ((y>>4 & 1) * xtime(xtime(xtime(xtime(x)))))); /* this last call to xtime() can be omitted */
 	}
 
 	/*
 		Adds the round key to the current intermediate state
 	 */
-	private void addRoundKey (byte round, byte[] roundKey) {
+	private void addRoundKey (int round) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				state[i][j] ^= roundKey[(round * numCol * 4) + (i * numCol) + j];
+				state[i][j] ^= roundKeys[round][(i * numCol) + j];
 			}
 		}
 	}
@@ -206,6 +228,54 @@ public class Rijndael {
 			for (int j = 0; j < 4; j++) {
 				state[j][i] = (byte) sBox[state[j][i]];
 			}
+		}
+	}
+
+
+	private void invSubBytes () {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				state[j][i] = (byte) rSBox[state[j][i]];
+			}
+		}
+	}
+
+	private byte xtime (byte tm) {
+		return (byte) ((tm << 1) ^ (((tm >> 7 & 1) * 0x1b)));
+	}
+
+	// mixes the columns of the state matrix
+	private void mixColumns() {
+		byte temp, tm, t;
+
+		for (int i = 0; i < 4; i++) {
+			t = state[i][0];
+			temp = (byte) (state[i][0] ^ state[i][1] ^ state[i][2] ^ state[i][3]);
+
+			tm = (byte) (state[i][0] ^ state[i][1]); tm = xtime(tm); state[i][0] ^= tm ^ temp;
+			tm = (byte) (state[i][1] ^ state[i][2]); tm = xtime(tm); state[i][1] ^= tm ^ temp;
+			tm = (byte) (state[i][2] ^ state[i][3]); tm = xtime(tm); state[i][2] ^= tm ^ temp;
+			tm = (byte) (state[i][3] ^ t);           tm = xtime(tm); state[i][3] ^= tm ^ temp;
+		}
+	}
+
+	private void invMixColumns() {
+		byte a, b, c, d;
+
+		for (int i = 0; i < 4; i++) {
+			a = state[i][0];
+			b = state[i][1];
+			c = state[i][2];
+			d = state[i][3];
+
+			state[i][0] = (byte) (multiply(a, (byte) 0x0e) ^ multiply(b, (byte) 0x0b) ^
+				multiply(c, (byte) 0x0d) ^ multiply(d, (byte) 0x09));
+			state[i][1] = (byte) (multiply(a, (byte) 0x09) ^ multiply(b, (byte) 0x0e) ^
+				multiply(c, (byte) 0x0b) ^ multiply(d, (byte) 0x0d));
+			state[i][2] = (byte) (multiply(a, (byte) 0x0d) ^ multiply(b, (byte) 0x09) ^
+				multiply(c, (byte) 0x0e) ^ multiply(d, (byte) 0x0b));
+			state[i][3] = (byte) (multiply(a, (byte) 0x0b) ^ multiply(b, (byte) 0x0d) ^
+				multiply(c, (byte) 0x09) ^ multiply(d, (byte) 0x0e));
 		}
 	}
 
@@ -236,9 +306,48 @@ public class Rijndael {
 		state[1][3] = temp;
 	}
 
+	private void invShiftRows() {
+		byte temp;
+
+		// rotate first row 1 columsn to the right
+		temp = state[3][1];
+		state[3][1] = state[2][1];
+		state[2][1] = state[1][1];
+		state[1][1] = state[0][1];
+		state[0][1] = temp;
+
+		// rotate second row 2 columns to right
+		temp = state[0][2];
+		state[0][2] = state[2][2];
+		state[2][2] = temp;
+
+		temp = state[1][2];
+		state[1][2] = state[3][2];
+		state[3][2] = temp;
+
+		// Rotate third row 3 columns right
+		temp = state[0][3];
+		state[0][3] = state[1][3];
+		state[1][3] = state[2][3];
+		state[2][3] = state[3][3];
+		state[3][3] = temp;
+	}
+
 	private void cipher (byte[] buffer, int counter) {
 
+		addRoundKey(0);
 
+		for (int round = 1; ; round++) {
+			subBytes();
+			shiftRows();
+			if (round == rounds) {
+				break;
+			}
+			mixColumns();
+			addRoundKey(round);
+		}
+
+		addRoundKey(rounds);
 	}
 
 	private void invCipher (byte[] buffer, int counter) {
@@ -248,7 +357,7 @@ public class Rijndael {
 
 	// PUBLIC METHODS for AES CBC
 	public void xorWithIV (byte[] buffer, byte[] Iv) {
-		for (int i = 0; i < 128; i++) {
+		for (int i = 0; i < 16; i++) {
 			buffer[i] ^= Iv[i];
 		}
 	}
@@ -265,7 +374,7 @@ public class Rijndael {
 		}
 		byte[] Iv = this.initialiseVector;
 
-		for (int i = 0; i < buffer.length; i += 128) {
+		for (int i = 0; i < buffer.length; i += 16) {
 			xorWithIV(buffer, Iv);
 
 			// Does the actual encryption
@@ -283,10 +392,9 @@ public class Rijndael {
 			return;
 		}
 
-		for (int i = 0; i < buffer.length; i += 128) {
+		for (int i = 0; i < buffer.length; i += 16) {
 
 			invCipher(buffer, i);   // Passes in the buffer and how much of it is already decrypted
-
 			xorWithIV(buffer, this.initialiseVector);
 		}
 
