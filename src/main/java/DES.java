@@ -1,6 +1,5 @@
 import javax.crypto.*;
 import javax.crypto.spec.*;
-import java.io.*;
 import java.security.*;
 import java.util.Random;
 
@@ -29,24 +28,19 @@ Compress the given 64-bit key into 48-bit keys using a 56-bit table
  */
 
 public class DES {
-	private final String plainText;
-	private byte[] inputBytes;
 	private byte[] keyArray;
 	private byte[] ivArray;
-	private byte[] encryptedBytes;
-	private byte[] decryptedBytes;
 	private SecretKeySpec secretKeySpec;
 	private IvParameterSpec ivParameterSpec;
 	Cipher cipher;
 
 	// constructor that sets the key length + # of rounds
-	public DES(String plainText){
-		this.plainText = plainText;
-	}
-
-	// step 1.
-	public void partitionBytes(){
-		inputBytes = plainText.getBytes();
+	public DES() throws NoSuchPaddingException, NoSuchAlgorithmException {
+		this.genKeyArray();
+		this.genIvArray();
+		this.genSecretKeySpec();
+		this.genIvParameterSpec();
+		this.createCipher();
 	}
 
 	// step 2.
@@ -82,33 +76,19 @@ public class DES {
 		cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
 	}
 
-	public void encrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException{
+	public byte[] encrypt(byte[] plainText) throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException{
 		// step 7.
 		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
 		// step 8.
-		encryptedBytes = cipher.doFinal(inputBytes);
+		return this.cipher.doFinal(plainText);
 	}
 
-	public void decrypt() throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException{
+	public byte[] decrypt(byte[] cipherText) throws InvalidAlgorithmParameterException, InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException{
 		// step 9.
 		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
 		// step 10.
 		//decryptedTextLength = cipher.update(encryptedBytes, 0, cipherTextLength, decryptedBytes, 0);
 		//decryptedTextLength += cipher.doFinal(decryptedBytes, decryptedTextLength);
-		decryptedBytes = cipher.doFinal(encryptedBytes);
+		return this.cipher.doFinal(cipherText);
 	}
-
-	public void writeDecryptOutput() throws IOException {
-		FileOutputStream out = new FileOutputStream("decrypted.dat");
-		out.write(decryptedBytes);
-		out.close();
-	}
-
-	// TODO: Maybe merge this method with writeDecryptOuput()
-	public void writeEncryptOutput() throws IOException {
-		FileOutputStream out = new FileOutputStream("encrypted.dat");
-		out.write(encryptedBytes);
-		out.close();
-	}
-
 }
