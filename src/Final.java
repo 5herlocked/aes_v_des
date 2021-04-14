@@ -18,7 +18,7 @@ public class Final {
 		// convert plaintext.txt to String
 		String plainText = "";
 		try {
-			plainText = convertFileToString("plainText.txt"); //
+			plainText = convertFileToString("plaintext.txt"); //
 		} catch (IOException e){
 			System.out.println("There was an issue finding the plaintext file");
 			e.printStackTrace();
