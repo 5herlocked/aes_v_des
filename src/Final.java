@@ -104,12 +104,12 @@ public class Final {
 		try {
 			writeToFile("encrypted_DES.txt", encryptedBuffer);
 		} catch (IOException e){
-			System.out.println("Could not write encrypted output to new file encrypted.dat");
+			System.out.println("Could not write encrypted output to new file encrypted_DES.txt");
 		}
 		try {
 			writeToFile("decrypted_DES.txt", decryptedBuffer);
 		} catch (IOException e){
-			System.out.println("Could not write decrypted output to new file decrypted.dat");
+			System.out.println("Could not write decrypted output to new file decrypted_DES.txt");
 		}
 	}
 
