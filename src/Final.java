@@ -12,67 +12,108 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 public class Final {
+	final static String filename = "plaintext5.txt";
+
 	public static void main (String[] args) throws InvalidAlgorithmParameterException, NoSuchPaddingException,
 		ShortBufferException, IllegalBlockSizeException, NoSuchAlgorithmException,
 		BadPaddingException, InvalidKeyException {
-		// convert plaintext.txt to String
+		// convert plaintext1.txt to String
 		String plainText = "";
 		try {
-			plainText = convertFileToString("plaintext.txt"); //
+			plainText = convertFileToString(); //
 		} catch (IOException e){
 			System.out.println("There was an issue finding the plaintext file");
 			e.printStackTrace();
 		}
 
-		//TODO: Have AES generate an encryptedText file and decryptedText file to match DES
-		testAES(plainText); // testing AES()
+//		// AES 128 testing
+//		AES aes_128 = new AES(128);
+//		// change this on the day of the presentation for the various modes
+//		long sumCounter = 0;
+//		for (int j = 0; j < 1000; j++) {
+//			sumCounter += testAES(aes_128, plainText); // testing AES()
+//		}
+//
+//		System.out.println("AES-128 average runtime: " + sumCounter/1000 + " ns");
+//
+//
+//		// AES 192 testing
+//		AES aes_192 = new AES(192);
+//		// change this on the day of the presentation for the various modes
+//		sumCounter = 0;
+//		for (int j = 0; j < 1000; j++) {
+//			sumCounter += testAES(aes_192, plainText); // testing AES()
+//		}
+//
+//		System.out.println("AES-192 average runtime: " + sumCounter/1000 + " ns");
+//
+//
+//		// AES 256 testing
+//		AES aes_256 = new AES(256);
+//		// change this on the day of the presentation for the various modes
+//		sumCounter = 0;
+//		for (int j = 0; j < 1000; j++) {
+//			sumCounter += testAES(aes_256, plainText); // testing AES()
+//		}
+//
+//		System.out.println("AES-256 average runtime: " + sumCounter/1000 + " ns");
 
-		testDES(plainText); // testingDES()
+
+		// DES testing
+		DES des = new DES();
+
+		long sumCounter = 0;
+		for (int j = 0; j < 1000; j++) {
+			sumCounter += testDES(des, plainText); // testing DES
+		}
+
+		System.out.println("DES average runtime: " + sumCounter/1000 + " ns");
 
 	}
 
-	private static String convertFileToString (String path) throws IOException {
+	private static String convertFileToString () throws IOException {
 
-		String generatedPath = Paths.get("").toAbsolutePath() + "\\" + path;
+		String generatedPath = Paths.get("").toAbsolutePath() + "\\" + Final.filename;
 		System.out.println(generatedPath);
 
 		return Files.readString(Paths.get(generatedPath));
 	}
 
-	private static void testAES(String plainText) {
+	private static long testAES(AES instance, String plainText) {
 		byte[] stringBuffer = plainText.getBytes(StandardCharsets.UTF_8);
 		byte[] encryptedBuffer = stringBuffer.clone();
 		byte[] decryptedBuffer = stringBuffer.clone();
 
 		long startTime = System.nanoTime(), endTime = -1;
 
-		// Initialises AES 128
-		AES aesCBC = null;
+		// Initialises AES
 		try {
-			aesCBC = new AES(128);
-
-			encryptedBuffer = aesCBC.encrypt(stringBuffer);
-			decryptedBuffer = aesCBC.decrypt(encryptedBuffer);
+			encryptedBuffer = instance.encrypt(stringBuffer);
+			decryptedBuffer = instance.decrypt(encryptedBuffer);
 
 			endTime = System.nanoTime();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("AES-128 encryption and decryption time taken: "
-			+ getTime(startTime, endTime) + " (ms)");
+		long duration = getTime(startTime, endTime);
 
-		try {
-			writeToFile("encrypted_AES.txt", encryptedBuffer);
-		} catch (IOException e) {
-			System.out.println("Could not write encrypted output to new file encrypted_AES.txt");
-		}
+//		System.out.println("AES-128 encryption and decryption time taken: "
+//			+ duration + " (ms)");
+//
+//		try {
+//			writeToFile("encrypted_AES.txt", encryptedBuffer);
+//		} catch (IOException e) {
+//			System.out.println("Could not write encrypted output to new file encrypted_AES.txt");
+//		}
+//
+//		try {
+//			writeToFile("decrypted_AES.txt", decryptedBuffer);
+//		} catch (IOException e) {
+//			System.out.println("Could not write decrypted output to new file decrypted_AES.txt");
+//		}
 
-		try {
-			writeToFile("decrypted_AES.txt", decryptedBuffer);
-		} catch (IOException e) {
-			System.out.println("Could not write decrypted output to new file decrypted_AES.txt");
-		}
+		return duration;
 	}
 
 	private static void writeToFile (String s, byte[] decryptedBuffer) throws IOException {
@@ -81,41 +122,40 @@ public class Final {
 		writeStream.close();
 	}
 
-	public static void testDES(String plainText) {
+	public static long testDES(DES instance, String plainText) {
 		byte[] stringBuffer = plainText.getBytes(StandardCharsets.UTF_8);
 		byte[] encryptedBuffer = stringBuffer.clone();
 		byte[] decryptedBuffer = stringBuffer.clone();
 
 		long startTime = System.nanoTime(), endTime = -1;
 
-		DES desCBC = null;
 		try {
-			desCBC = new DES();
-			encryptedBuffer = desCBC.encrypt(stringBuffer);
-			decryptedBuffer = desCBC.decrypt(encryptedBuffer);
+			encryptedBuffer = instance.encrypt(stringBuffer);
+			decryptedBuffer = instance.decrypt(encryptedBuffer);
 			endTime = System.nanoTime();
 		} catch (Exception ignored) {
 
 		}
 
 		long duration = getTime(startTime, endTime);
-		System.out.println("DES encryption and decryption time taken: " + duration + " (ms)");
+//		System.out.println("DES encryption and decryption time taken: " + duration + " (ns)");
+//
+//		try {
+//			writeToFile("encrypted_DES_" + filename, encryptedBuffer);
+//		} catch (IOException e){
+//			System.out.println("Could not write encrypted output to new file encrypted_DES.txt");
+//		}
+//		try {
+//			writeToFile("decrypted_DES_" + filename, decryptedBuffer);
+//		} catch (IOException e){
+//			System.out.println("Could not write decrypted output to new file decrypted_DES.txt");
+//		}
 
-		try {
-			writeToFile("encrypted_DES.txt", encryptedBuffer);
-		} catch (IOException e){
-			System.out.println("Could not write encrypted output to new file encrypted_DES.txt");
-		}
-		try {
-			writeToFile("decrypted_DES.txt", decryptedBuffer);
-		} catch (IOException e){
-			System.out.println("Could not write decrypted output to new file decrypted_DES.txt");
-		}
+		return duration;
 	}
 
 
 	private static long getTime(long startTime, long endTime) {
-		//divide by 1000000 for ms
-		return (endTime - startTime) / 1000000;
+		return (endTime - startTime);
 	}
 }
