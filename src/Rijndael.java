@@ -130,6 +130,12 @@ public class Rijndael {
 	}
 
 	// Private Methods
+	private void xorWithIV (byte[] buffer, byte[] Iv) {
+		for (int i = 0; i < 16; i++) {
+			buffer[i] ^= Iv[i];
+		}
+	}
+
 	private byte[] generateIV () throws Exception {
 		byte[] IV = new byte[16];
 		SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
@@ -352,11 +358,6 @@ public class Rijndael {
 
 
 	// PUBLIC METHODS for AES CBC
-	public void xorWithIV (byte[] buffer, byte[] Iv) {
-		for (int i = 0; i < 16; i++) {
-			buffer[i] ^= Iv[i];
-		}
-	}
 
 	public void encrypt (byte[] buffer) {
 

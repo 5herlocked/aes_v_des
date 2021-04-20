@@ -12,7 +12,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 public class Final {
-	final static String filename = "plaintext5.txt";
+	final static String filename = "plaintext3.txt";
 
 	public static void main (String[] args) throws InvalidAlgorithmParameterException, NoSuchPaddingException,
 		ShortBufferException, IllegalBlockSizeException, NoSuchAlgorithmException,
@@ -26,48 +26,48 @@ public class Final {
 			e.printStackTrace();
 		}
 
-//		// AES 128 testing
-//		AES aes_128 = new AES(128);
-//		// change this on the day of the presentation for the various modes
-//		long sumCounter = 0;
-//		for (int j = 0; j < 1000; j++) {
-//			sumCounter += testAES(aes_128, plainText); // testing AES()
-//		}
-//
-//		System.out.println("AES-128 average runtime: " + sumCounter/1000 + " ns");
-//
-//
-//		// AES 192 testing
-//		AES aes_192 = new AES(192);
-//		// change this on the day of the presentation for the various modes
-//		sumCounter = 0;
-//		for (int j = 0; j < 1000; j++) {
-//			sumCounter += testAES(aes_192, plainText); // testing AES()
-//		}
-//
-//		System.out.println("AES-192 average runtime: " + sumCounter/1000 + " ns");
-//
-//
-//		// AES 256 testing
-//		AES aes_256 = new AES(256);
-//		// change this on the day of the presentation for the various modes
-//		sumCounter = 0;
-//		for (int j = 0; j < 1000; j++) {
-//			sumCounter += testAES(aes_256, plainText); // testing AES()
-//		}
-//
-//		System.out.println("AES-256 average runtime: " + sumCounter/1000 + " ns");
+		// AES 128 testing
+		AES aes_128 = new AES(128);
+		// change this on the day of the presentation for the various modes
+		long sumCounter = 0;
+		for (int j = 0; j < 10; j++) {
+			sumCounter += testAES(aes_128, plainText); // testing AES()
+		}
+
+		System.out.println("AES-128 average runtime: " + sumCounter/10 + " ns");
+
+
+		// AES 192 testing
+		AES aes_192 = new AES(192);
+		// change this on the day of the presentation for the various modes
+		sumCounter = 0;
+		for (int j = 0; j < 10; j++) {
+			sumCounter += testAES(aes_192, plainText); // testing AES()
+		}
+
+		System.out.println("AES-192 average runtime: " + sumCounter/10 + " ns");
+
+
+		// AES 256 testing
+		AES aes_256 = new AES(256);
+		// change this on the day of the presentation for the various modes
+		sumCounter = 0;
+		for (int j = 0; j < 10; j++) {
+			sumCounter += testAES(aes_256, plainText); // testing AES()
+		}
+
+		System.out.println("AES-256 average runtime: " + sumCounter/10 + " ns");
 
 
 		// DES testing
 		DES des = new DES();
 
-		long sumCounter = 0;
-		for (int j = 0; j < 1000; j++) {
+		sumCounter = 0;
+		for (int j = 0; j < 10; j++) {
 			sumCounter += testDES(des, plainText); // testing DES
 		}
 
-		System.out.println("DES average runtime: " + sumCounter/1000 + " ns");
+		System.out.println("DES average runtime: " + sumCounter/10 + " ns");
 
 	}
 
